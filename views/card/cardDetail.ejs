@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>User List</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    />
+    <style>
+      .sidebar {
+        height: 100vh;
+        position: fixed;
+        top: 0;
+      }
+
+      .main-content {
+        margin-right: 0;
+      }
+      .sidebar-sticky {
+        padding-top: 20px;
+      }
+
+      .sidebar-sticky img {
+        margin-bottom: 10px;
+      }
+
+      .sidebar-sticky h5,
+      .sidebar-sticky p {
+        margin: 0; /* Loại bỏ margin mặc định */
+      }
+
+      .nav-item {
+        margin-bottom: 5px; /* Khoảng cách giữa các mục */
+      }
+
+      /* Thêm vào phần <style> của bạn */
+      .nav-link {
+        margin-bottom: 10px; /* Khoảng cách giữa các nút */
+        padding: 10px;
+        border-radius: 5px;
+        color: #fff;
+        text-align: left; /* Căn lề về trái */
+      }
+
+      .nav-link .nav-link-icon {
+        margin-right: 10px;
+      }
+
+      .nav-link:hover {
+        background-color: #fff; /* Màu nền khi hover */
+        color: #000; /* Màu chữ khi hover */
+      }
+      .logout-btn {
+        margin-left: auto;
+      }
+
+      .logout-btn button:hover {
+        background-color: #343a40; /* Màu nền khi hover */
+        color: #fff; /* Màu chữ khi hover */
+      }
+      /* Thêm vào phần <style> của bạn hoặc tạo một file CSS riêng */
+      .rounded-top-header {
+        border-radius: 10px;
+      }
+      /* Thêm vào phần <style> của bạn hoặc tạo một file CSS riêng */
+      .pagination-container {
+        border-top: 1px solid #dee2e6;
+        padding-top: 10px;
+      }
+
+      .pagination {
+        margin: 0;
+      }
+
+      .page-item {
+        display: inline-block;
+        margin-right: 5px;
+      }
+
+      .page-link {
+        cursor: pointer;
+      }
+
+      .page-item.active .page-link {
+        background-color: #007bff;
+        border-color: #007bff;
+      }
+    </style>
+  </head>
+  <body class="bg-secondary">
+    <nav class="navbar navbar-dark bg-dark">
+      <div class="logout-btn">
+        <button class="btn btn-outline-light my-2 my-sm-0" type="button" onclick="handleLogout()">
+          <i class="fas fa-sign-out-alt"></i>
+        </button>
+      </div>
+      <script>
+        async function handleLogout() {
+          const response = await fetch('/admin/logout', {
+            method: 'POST',
+          });
+      
+          if (response.ok) {
+            alert('Đăng xuất thành công!');
+            window.location.href = "/"; // Chuyển hướng người dùng đến trang đăng nhập sau khi đăng xuất
+          } else {
+            alert('Đăng xuất không thành công. Vui lòng thử lại.');
+          }
+        }
+      </script>
+      
+    </nav>
+
+    <div class="container-fluid">
+      <div class="row">
+        <!-- Sidebar -->
+        <nav class="col-md-2 d-none d-md-block bg-dark sidebar text-light">
+          <div class="sidebar-sticky text-center">
+            <div class="mb-4">
+              <img
+                src="https://static.vecteezy.com/system/resources/previews/019/896/008/original/male-user-avatar-icon-in-flat-design-style-person-signs-illustration-png.png"
+                alt="Avatar"
+                class="rounded-circle"
+                width="80"
+                height="80"
+              />
+              <h5 class="mt-3">Admin</h5>
+              <p>Xin chào mừng trở lại</p>
+              <hr class="bg-light" />
+            </div>
+            <ul class="nav flex-column">
+              <li class="nav-item">
+                <a href="http://localhost:3000/user/listuser" class="nav-link">
+                  <i class="fas fa-user nav-link-icon"></i> Quản lý người dùng
+                </a>
+              </li>
+              <li class="nav-item">
+                <a
+                  href="http://localhost:3000/product/listproduct"
+                  class="nav-link"
+                >
+                  <i class="fas fa-box nav-link-icon"></i> Quản lý sản phẩm
+                </a>
+              </li>
+              <li class="nav-item">
+                <a
+                  href="http://localhost:3000/order/listorder"
+                  class="nav-link"
+                >
+                  <i class="fas fa-file-alt nav-link-icon"></i> Quản lý đơn đặt
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="http://localhost:3000/card/cardlist" class="nav-link">
+                  <i class="fas fa-credit-card nav-link-icon"></i> Quản lý thẻ
+                  nạp
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="http://localhost:3000/thongke/thongkeall" class="nav-link">
+                  <i class="fas fa-chart-bar nav-link-icon"></i> Thống kê
+                </a>
+              </li>
+              <!-- Thêm các mục sidebar khác nếu cần -->
+            </ul>
+          </div>
+        </nav>
+
+        <!-- Content -->
+        <main
+          role="main"
+          class="col-md-9 ml-sm-auto col-lg-10 px-4 main-content"
+        >
+        <div class="rounded-top-header mb-3 p-3 bg-light text-dark mt-3">
+            <h3>Chi tiết thẻ</h3>
+          </div>
+        <div class="p-3 bg-white rounded">
+            <h1 class="text-center my-4">Thông tin thẻ</h1>
+            <div class="card">
+                <div class="card-body">
+                    <p class="card-text"><strong>Mã PIN:</strong> <%= card.cardPin %></p>
+                    <p class="card-text"><strong>Nhà cung cấp:</strong> <%= card.cardProvider %></p>
+                    <p class="card-text"><strong>Số serial:</strong> <%= card.cardSerial %></p>
+                    <p class="card-text"><strong>Giá trị thẻ:</strong> <%= card.cardValue %></p>
+                    <p class="card-text"><strong>Trạng thái:</strong> <%= card.status %></p>
+                    <p class="card-text"><strong>Thời gian:</strong> <%= card.time %></p>
+                    <p class="card-text"><strong>Tên người dùng:</strong> <%= card.username %></p>
+                </div>
+            </div>
+        </div></main>
+      </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+    <script
+      src="https://kit.fontawesome.com/ececb9b28f.js"
+      crossorigin="anonymous"
+    ></script>
+    <script>
+      // Chọn tất cả các checkbox khi checkbox "Select All" được chọn
+      document
+        .getElementById("selectAll")
+        .addEventListener("change", function () {
+          var checkboxes = document.querySelectorAll(
+            'tbody input[type="checkbox"]'
+          );
+          checkboxes.forEach(function (checkbox) {
+            checkbox.checked = event.target.checked;
+          });
+        });
+    </script>
+  </body>
+</html>
