@@ -52,6 +52,6 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
-server.listen(4000); // Sử dụng server.listen thay vì app.listen
+server.listen(5000); // Sử dụng server.listen thay vì app.listen
 
 module.exports = app; // Xuất app
