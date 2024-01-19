@@ -1,5 +1,5 @@
 const firebase = require("firebase/app");
-const { getDatabase, ref, onValue } = require("firebase/database");
+const { getDatabase, ref, get, update } = require("firebase/database");
 
 const firebaseConfig = require("../model/firebaseConfig");
 
@@ -18,9 +18,10 @@ exports.login = async (req, res, next) => {
   const { email, password } = req.body;
   console.log(`Đang đăng nhập với email: ${email}`); // Ghi log
   signInWithEmailAndPassword(auth, email, password)
-    .then((userCredential) => {
+    .then(async (userCredential) => {
       const userRef = ref(db, `user/${userCredential.user.uid}`);
-      onValue(userRef, (snapshot) => {
+      try {
+        const snapshot = await get(userRef);
         const userDetail = snapshot.val();
         console.log(userDetail);
         if (userDetail.user_type) {
@@ -36,7 +37,10 @@ exports.login = async (req, res, next) => {
             .status(403)
             .send("Chỉ người dùng có user_type: true mới được phép đăng nhập.");
         }
-      });
+      } catch (error) {
+        console.error(error);
+        next(error);
+      }
     })
     .catch((error) => {
       console.log(`Đăng nhập thất bại với lỗi: ${error.message}`); // Ghi log

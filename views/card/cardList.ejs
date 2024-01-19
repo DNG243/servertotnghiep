@@ -255,7 +255,7 @@
 
                   <th scope="col">Thời gian</th>
                   <th scope="col">Tên người dùng</th>
-                 
+                  <th scope="col">Tính năng</th>
                   <!-- Thêm các cột khác nếu cần -->
                 </tr>
               </thead>
@@ -273,7 +273,15 @@
                   <td><%= card.time %></td>
 
                   <td><%= card.username %></td>
-                  
+                  <td>
+         
+                    <!-- Biểu tượng Update -->
+                    <a href="/card/editcard/<%= card.cardId %>" class="btn btn-warning btn-sm">
+                      <i class="fas fa-edit"></i>
+                    </a>
+                    
+                    
+                  </td>
                 </tr>
                 <% }); %>
               </tbody>

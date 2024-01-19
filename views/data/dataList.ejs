@@ -6,8 +6,7 @@
       rel="stylesheet"
       href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
     />
-      <!-- Chart.js -->
-      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
       .sidebar {
         height: 100vh;
@@ -92,25 +91,28 @@
   <body class="bg-secondary">
     <nav class="navbar navbar-dark bg-dark">
       <div class="logout-btn">
-        <button class="btn btn-outline-light my-2 my-sm-0" type="button" onclick="handleLogout()">
+        <button
+          class="btn btn-outline-light my-2 my-sm-0"
+          type="button"
+          onclick="handleLogout()"
+        >
           <i class="fas fa-sign-out-alt"></i>
         </button>
       </div>
       <script>
         async function handleLogout() {
-          const response = await fetch('/admin/logout', {
-            method: 'POST',
+          const response = await fetch("/admin/logout", {
+            method: "POST",
           });
-      
+
           if (response.ok) {
-            alert('Đăng xuất thành công!');
+            alert("Đăng xuất thành công!");
             window.location.href = "/"; // Chuyển hướng người dùng đến trang đăng nhập sau khi đăng xuất
           } else {
-            alert('Đăng xuất không thành công. Vui lòng thử lại.');
+            alert("Đăng xuất không thành công. Vui lòng thử lại.");
           }
         }
       </script>
-      
     </nav>
 
     <div class="container-fluid">
@@ -158,8 +160,12 @@
                   nạp
                 </a>
               </li>
+
               <li class="nav-item">
-                <a href="http://localhost:3000/thongke/thongkeall" class="nav-link">
+                <a
+                  href="http://localhost:3000/thongke/thongkeall"
+                  class="nav-link"
+                >
                   <i class="fas fa-chart-bar nav-link-icon"></i> Thống kê
                 </a>
               </li>
@@ -173,188 +179,187 @@
           role="main"
           class="col-md-9 ml-sm-auto col-lg-10 px-4 main-content"
         >
-        <div class="rounded-top-header mb-3 p-3 bg-light text-dark mt-3">
+          <div class="rounded-top-header mb-3 p-3 bg-light text-dark mt-3">
             <h3>Trang thống kê</h3>
           </div>
-        <div class="p-3 bg-white rounded">
-            <h1>Thống kê người dùng và sản phẩm</h1>
-    
-            <!-- Hiển thị tổng số người dùng -->
-            <p class="mt-4">Tổng số người dùng đã đăng ký: <%= totalUsers %></p>
-    
-            <!-- Hiển thị tổng số sản phẩm đã được rao bán -->
-            <p>Tổng số sản phẩm đã được rao bán: <%= totalProductsForSale %></p>
-    
-            <!-- Hiển thị tổng số sản phẩm đã được bán -->
-            <p>Tổng số sản phẩm đã được bán: <%= totalProductsSold %></p>
-    
-            <!-- Biểu đồ -->
-            <canvas id="myChart" width="400" height="200"></canvas>
-        </div>
-    
-        <div class="p-3 bg-white rounded mt-3">
-            <h1>Thống kê đơn hàng và thẻ</h1>
-    
-            <!-- Chọn năm và tháng -->
-            <div class="form-group">
-                <label for="year">Chọn năm:</label>
-                <select id="year" class="form-control" onchange="updateDisplay()">
-                    <% for(let year = 2023; year <= new Date().getFullYear(); year++) { %>
-                        <option value="<%= year %>" <%= year == new Date().getFullYear() ? 'selected' : '' %>><%= year %></option>
-                    <% } %>
-                </select>
-            </div>
-    
-            <div class="form-group">
-                <label for="month">Chọn tháng:</label>
-                <select id="month" class="form-control" onchange="updateDisplay()">
-                    <% for(let i = 1; i <= 12; i++) { %>
-                        <option value="<%= i %>" <%= i == (new Date().getMonth() + 1) ? 'selected' : '' %>><%= i %></option>
-                    <% } %>
-                </select>
-            </div>
-    
-            <!-- Thống kê đơn hàng -->
-            <div id="stats" class="mt-4"></div>
-            <canvas id="orderChart"></canvas>
-    
-            <!-- Thống kê thẻ -->
-            <div id="stats2" class="mt-4"></div>
-            <canvas id="cardChart"></canvas>
-        </div>
-    
-        <script>
-            let orderChart, cardChart; // Khai báo biến để lưu biểu đồ
-        
-            function updateDisplay() {
-                const year = document.getElementById('year').value;
-                const month = document.getElementById('month').value;
-                const orderStats = <%- JSON.stringify(orderStats) %>;
-                const cardStats = <%- JSON.stringify(cardStats) %>;
-        
-                let statsDiv = document.getElementById('stats');
-                let statsDiv2 = document.getElementById('stats2');
-                statsDiv.innerHTML = '';
-                statsDiv2.innerHTML = '';
-        
-                // Xóa biểu đồ cũ (nếu có)
-                if(orderChart) orderChart.destroy();
-                if(cardChart) cardChart.destroy();
-        
-                // Tạo biểu đồ cho đơn hàng
-                if(orderStats[year] && orderStats[year][month]) {
-                    let orderData = orderStats[year][month];
-                    statsDiv.innerHTML += `<h2>Thống kê đơn hàng cho tháng ${month}, năm ${year}</h2>`;
-                    statsDiv.innerHTML += `<p>Tổng số đơn hàng: ${orderData.totalOrders}</p>`;
-                    statsDiv.innerHTML += `<p>Số đơn hàng thành công: ${orderData.successfulOrders}</p>`;
-                    statsDiv.innerHTML += `<p>Số đơn hàng đang chờ: ${orderData.waitingOrders}</p>`;
-                    statsDiv.innerHTML += `<p>Tổng số tiền đã thanh toán: ${orderData.totalAmount}</p>`;
-                    
-                    orderChart = new Chart(document.getElementById('orderChart'), {
-                        type: 'bar',
-                        data: {
-                            labels: ['Tổng số đơn hàng', 'Số đơn hàng thành công', 'Số đơn hàng đang chờ'],
-                            datasets: [{
-                                label: 'Thống kê đơn hàng',
-                                data: [orderData.totalOrders, orderData.successfulOrders, orderData.waitingOrders],
-                                backgroundColor: ['rgba(255, 99, 132, 0.2)', 'rgba(75, 192, 192, 0.2)', 'rgba(255, 206, 86, 0.2)'],
-                                borderColor: ['rgba(255, 99, 132, 1)', 'rgba(75, 192, 192, 1)', 'rgba(255, 206, 86, 1)'],
-                                borderWidth: 1
-                            }]
-                        },
-                        options: {
-                            scales: {
-                                y: {
-                                    beginAtZero: true
-                                }
-                            }
-                        }
-                    });
-                } else {
-                    statsDiv.innerHTML += `<p>Tháng ${month}, năm ${year} không có thống kê đơn hàng.</p>`;
-                }
-        
-                // Tạo biểu đồ cho thẻ
-                if(cardStats[year] && cardStats[year][month]) {
-                    let cardData = cardStats[year][month];
-                    statsDiv2.innerHTML += `<h2>Thống kê thẻ cho tháng ${month}, năm ${year}</h2>`;
-                    statsDiv2.innerHTML += `<p>Tổng số thẻ: ${cardData.totalCards}</p>`;
-                    statsDiv2.innerHTML += `<p>Số thẻ thành công: ${cardData.successfulCards}</p>`;
-                    statsDiv2.innerHTML += `<p>Số thẻ thất bại: ${cardData.failedCards}</p>`;
-                    statsDiv2.innerHTML += `<p>Tổng số tiền thẻ đã thêm: ${cardData.totalAmount}</p>`;
-                    
-                    cardChart = new Chart(document.getElementById('cardChart'), {
-                        type: 'bar',
-                        data: {
-                            labels: ['Tổng số thẻ', 'Số thẻ thành công', 'Số thẻ thất bại'],
-                            datasets: [{
-                                label: 'Thống kê thẻ',
-                                data: [cardData.totalCards, cardData.successfulCards, cardData.failedCards],
-                                backgroundColor: ['rgba(255, 99, 132, 0.2)', 'rgba(75, 192, 192, 0.2)', 'rgba(255, 206, 86, 0.2)'],
-                                borderColor: ['rgba(255, 99, 132, 1)', 'rgba(75, 192, 192, 1)', 'rgba(255, 206, 86, 1)'],
-                                borderWidth: 1
-                            }]
-                        },
-                        options: {
-                            scales: {
-                                y: {
-                                    beginAtZero: true
-                                }
-                            }
-                        }
-                    });
-                } else {
-                    statsDiv.innerHTML += `<p>Tháng ${month}, năm ${year} không có thống kê thẻ.</p>`;
-                }
-            }
-        
-            // Cập nhật hiển thị khi trang tải xong
-            window.onload = updateDisplay;
-        </script>
-        
-        
-        <script>
-          // Lấy context của canvas
-          var ctx = document.getElementById('myChart').getContext('2d');
-    
-          // Tạo biến trung gian
-          var sold = <%= totalProductsSold %>;
-          var forSale = <%= totalProductsForSale %>;
-    
-          // Dữ liệu cho biểu đồ
-          var chartData = {
-              labels: ['Đã bán', 'Đang rao bán'],
-              datasets: [{
-                  label: 'Số lượng sản phẩm',
-                  data: [sold, forSale],
-                  backgroundColor: [
-                      'rgba(255, 99, 132, 0.2)',
-                      'rgba(54, 162, 235, 0.2)',
-                  ],
-                  borderColor: [
-                      'rgba(255, 99, 132, 1)',
-                      'rgba(54, 162, 235, 1)',
-                  ],
-                  borderWidth: 1
-              }]
-          };
-    
-          // Cấu hình biểu đồ
-          var chartOptions = {
-              scales: {
-                  y: {
-                      beginAtZero: true
-                  }
+          <div class="p-3 bg-white rounded">
+            <form action="/thongke/thongkeall" method="post" class="mb-5">
+              <div class="form-group">
+                <label for="start-date">Ngày bắt đầu:</label>
+                <input
+                  type="date"
+                  id="start-date"
+                  name="start-date"
+                  value="<%= startDate %>"
+                  class="form-control"
+                />
+              </div>
+              <div class="form-group">
+                <label for="end-date">Ngày kết thúc:</label>
+                <input
+                  type="date"
+                  id="end-date"
+                  name="end-date"
+                  value="<%= endDate %>"
+                  class="form-control"
+                />
+              </div>
+              <input type="submit" value="Lọc" class="btn btn-primary" />
+            </form>
+
+            <style>
+              .product-card {
+                display: flex;
+                align-items: center;
+                border: 1px solid #ddd;
+                padding: 10px;
+                margin-bottom: 10px;
+                border-radius: 5px;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
               }
-          };
-    
-          // Tạo biểu đồ
-          var myChart = new Chart(ctx, {
-              type: 'bar',
-              data: chartData,
-              options: chartOptions
-          });
-        </script></main>
+              .product-card img {
+                max-width: 50px;
+                margin-right: 10px;
+              }
+            </style>
+            
+            <div class="card mb-5">
+              <div class="card-header">
+                <h2>Thống kê sản phẩm từ <%= startDate %> đến <%= endDate %></h2>
+              </div>
+              <div class="card-body">
+                <% if (Object.keys(stats.products).length > 0) { %>
+                <div style="height: 600px; overflow-y: scroll;">
+                  <% for (let productId in stats.products) { %>
+                  <div class="product-card">
+                    <img src="<%= stats.products[productId].image %>" alt="<%= stats.products[productId].name %>">
+                    <div>
+                      <h5><%= stats.products[productId].name %></h5>
+                      <p>Số lượng đã bán: <%= stats.products[productId].quantity %></p>
+                      <p>Tổng tiền bán được: <%= stats.products[productId].totalValue %></p>
+                    </div>
+                  </div>
+                  <% } %>
+                </div>
+                <div class="mt-3">
+                  <h4>Tổng tiền bán được: <%= stats.totalSales %></h4>
+                </div>
+                <% } else { %>
+                <p>Không có dữ liệu cho thời gian này.</p>
+                <% } %>
+              </div>
+            </div>
+            
+            <div class="card mb-5">
+              <div class="card-header">
+                <h2>Thống kê thẻ nạp từ <%= startDate %> đến <%= endDate %></h2>
+              </div>
+              <div class="card-body">
+                <canvas id="cardsChart"></canvas>
+                <% if (Object.keys(stats.cards).length > 0) { %>
+                <p class="mt-3">
+                  Tổng số đơn thành công: <%=
+                  Object.values(stats.cards).reduce((total, dateStats) => total
+                  + dateStats.success.count, 0) %>
+                </p>
+                <p>
+                  Tổng số đơn thất bại: <%=
+                  Object.values(stats.cards).reduce((total, dateStats) => total
+                  + dateStats.failed.count, 0) %>
+                </p>
+                <p>
+                  Tổng số tiền từ đơn thành công: <%=
+                  Object.values(stats.cards).reduce((total, dateStats) => total
+                  + dateStats.success.totalValue, 0) %>
+                </p>
+                <% } else { %>
+                <p>Không có dữ liệu cho thời gian này.</p>
+                <% } %>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <h2>Thống kê đơn đặt từ <%= startDate %> đến <%= endDate %></h2>
+              </div>
+              <div class="card-body">
+                <canvas id="listOrderChart"></canvas>
+                <% if (Object.keys(stats.list_order).length > 0) { %>
+                <p class="mt-3">
+                  Tổng số đơn thành công: <%=
+                  Object.values(stats.list_order).reduce((total, dateStats) =>
+                  total + dateStats.success.count, 0) %>
+                </p>
+                <p>
+                  Tổng số đơn thất bại: <%=
+                  Object.values(stats.list_order).reduce((total, dateStats) =>
+                  total + dateStats.failed.count, 0) %>
+                </p>
+                <p>
+                  Tổng số tiền từ đơn thành công: <%=
+                  Object.values(stats.list_order).reduce((total, dateStats) =>
+                  total + dateStats.success.totalValue, 0) %>
+                </p>
+                <% } else { %>
+                <p>Không có dữ liệu cho thời gian này.</p>
+                <% } %>
+              </div>
+            </div>
+          </div>
+
+          <script>
+            let stats = <%- JSON.stringify(stats) %>;
+
+              let cardsLabels = Object.keys(stats.cards).sort();
+
+              let cardsSuccessData = cardsLabels.map(date => stats.cards[date].success.count);
+              let cardsFailedData = cardsLabels.map(date => stats.cards[date].failed.count);
+
+              new Chart(document.getElementById('cardsChart'), {
+                  type: 'line',
+                  data: {
+                      labels: cardsLabels,
+                      datasets: [{
+                          label: 'Thành công',
+                          data: cardsSuccessData,
+                          fill: false,
+                          borderColor: 'rgb(75, 192, 192)',
+                          tension: 0.1
+                      }, {
+                          label: 'Thất bại',
+                          data: cardsFailedData,
+                          fill: false,
+                          borderColor: 'rgb(255, 99, 132)',
+                          tension: 0.1
+                      }]
+                  }
+              });
+
+              let listOrderLabels = Object.keys(stats.list_order).sort();
+              let listOrderSuccessData = listOrderLabels.map(date => stats.list_order[date].success.count);
+              let listOrderFailedData = listOrderLabels.map(date => stats.list_order[date].failed.count);
+
+              new Chart(document.getElementById('listOrderChart'), {
+                  type: 'line',
+                  data: {
+                      labels: listOrderLabels,
+                      datasets: [{
+                          label: 'Thành công',
+                          data: listOrderSuccessData,
+                          fill: false,
+                          borderColor: 'rgb(75, 192, 192)',
+                          tension: 0.1
+                      }, {
+                          label: 'Thất bại',
+                          data: listOrderFailedData,
+                          fill: false,
+                          borderColor: 'rgb(255, 99, 132)',
+                          tension: 0.1
+                      }]
+                  }
+              });
+          </script>
+        </main>
       </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>

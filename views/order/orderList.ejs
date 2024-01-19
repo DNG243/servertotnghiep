@@ -249,14 +249,15 @@
                   <th scope="col">STT</th>
                   <th>Địa chỉ</th>
 
-                  <th>Tên sản phẩm</th>
+                  <th>Tên người mua</th>
 
                   <th>Số điện thoại</th>
-                  <th>Đã thanh toán</th>
-                  <th>Số lượng</th>
-                  <th>Trạng thái</th>
+                  <th>Phương thức thanh toán</th>
+                  
                   <th>Tổng tiền</th>
-                  <th scope="col">Chi tiết</th>
+                  <th>Trạng thái</th>
+                  <th>Thời gian</th>
+                  <th scope="col">Tính năng</th>
                   <!-- Thêm các cột khác nếu cần -->
                 </tr>
               </thead>
@@ -267,21 +268,25 @@
                   <td><%= index + 1 %></td>
                   <td><%= order.address %></td>
 
-                  <td><%= order.nameProduct %></td>
+                  <td><%= order.customerName  %></td>
 
                   <td><%= order.numberPhone %></td>
                   <td>
-                    <%= order.paid ? 'Đã thanh toán' : 'Chưa thanh toán' %>
+                    <%= order.paid ? 'thanh toán bằng ví' : ' thanh toán khi nhận hàng ' %>
                   </td>
-                  <td><%= order.quantity %></td>
-                  <td><%= order.status %></td>
+                  
                   <td><%= order.total %></td>
+                  <td><%= order.status %></td>
+                  <td><%= order.date %></td>
+
                   <td>
                     <a href="/order/detailorder/<%= order.id %>" class="btn btn-info btn-sm">
                       <i class="fas fa-info-circle"></i>
                     </a>
                     <!-- Biểu tượng Update -->
-                    
+                    <a href="/order/editorder/<%= order.id %>" class="btn btn-warning btn-sm">
+                      <i class="fas fa-edit"></i>
+                    </a>
                   </td>
                 </tr>
                 <% }); %>

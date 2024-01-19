@@ -255,7 +255,7 @@
                   <th scope="col">STT</th>
                   <th onclick="sortTable(3)">Tên</th>
                   <th onclick="sortTable(4)">Email</th>
-                  <th onclick="sortTable(5)">Địa chỉ</th>
+                  <th onclick="sortTable(5)">Trạng thái</th>
                   <th onclick="sortTable(6)">Số điện thoại</th>
                   <th onclick="sortTable(7)">Ví tiền</th>
 
@@ -270,7 +270,14 @@
                   <td><%= index + 1 %></td>
                   <td><%= user.username %></td>
                   <td><%= user.email %></td>
-                  <td><%= user.address %></td>
+                  <td>
+                    <% if (user.lock) { %>
+                      Bị chặn
+                    <% } else { %>
+                      Không bị chặn
+                    <% } %>
+                  </td>
+                  
                   <td><%= user.phone %></td>
                   <td><%= user.wallet %></td>
 

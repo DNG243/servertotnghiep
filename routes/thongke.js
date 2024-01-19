@@ -12,6 +12,7 @@ function requireLogin(req, res, next) {
     next();
   }
 }
-router.get("/thongkeall", requireLogin, thongke.listAllData);
+router.get("/thongkeall", requireLogin, thongke.filterData);
+router.post("/thongkeall", requireLogin, thongke.filterData);
 
 module.exports = router;

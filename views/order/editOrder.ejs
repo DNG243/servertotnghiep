@@ -4,6 +4,7 @@
 <head>
     <title>User List</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+    <script src="/socket.io/socket.io.js"></script>
     <style>
         .sidebar {
             height: 100vh;
@@ -100,12 +101,26 @@
 
 <body class="bg-secondary">
     <nav class="navbar navbar-dark bg-dark">
-        <a class="navbar-brand" href="#">User List</a>
         <div class="logout-btn">
-            <button class="btn btn-outline-light my-2 my-sm-0" type="button">
+            <button class="btn btn-outline-light my-2 my-sm-0" type="button" onclick="handleLogout()">
                 <i class="fas fa-sign-out-alt"></i>
             </button>
         </div>
+        <script>
+            async function handleLogout() {
+                const response = await fetch('/admin/logout', {
+                    method: 'POST',
+                });
+
+                if (response.ok) {
+                    alert('Đăng xuất thành công!');
+                    window.location.href = "/"; // Chuyển hướng người dùng đến trang đăng nhập sau khi đăng xuất
+                } else {
+                    alert('Đăng xuất không thành công. Vui lòng thử lại.');
+                }
+            }
+        </script>
+
     </nav>
 
     <div class="container-fluid">
@@ -142,13 +157,9 @@
                                 nạp
                             </a>
                         </li>
+
                         <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="fas fa-star nav-link-icon"></i> Quản lý đánh giá
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">
+                            <a href="http://localhost:3000/thongke/thongkeall" class="nav-link">
                                 <i class="fas fa-chart-bar nav-link-icon"></i> Thống kê
                             </a>
                         </li>
@@ -160,42 +171,46 @@
             <!-- Content -->
             <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4 main-content">
                 <div class="rounded-top-header mb-3 p-3 bg-light text-dark mt-3">
-                    <h3>Chỉnh sửa người dùng</h3>
-                  </div>
+                    <h3>Thay đổi trạng thái đơn đặt</h3>
+                </div>
                 <div class="p-3 bg-white rounded">
                     <% if (message) { %>
                         <div class="alert alert-success">
                             <%= message %>
                         </div>
                         <% } %>
+                    <form action="/order/editorder/<%= order.id %>" method="post">
+                        <div class="form-group">
+                            <label for="customerName">Tên người mua:</label>
+                            <input type="text" id="customerName" name="customerName" value="<%= order.customerName %>"
+                                readonly class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="paid">Phương thức thanh toán:</label>
+                            <input type="text" id="paid" name="paid"
+                                value="<%= order.paid ? 'thanh toán bằng ví' : ' thanh toán khi nhận hàng ' %>" readonly
+                                class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="total">Tổng tiền:</label>
+                            <input type="text" id="total" name="total" value="<%= order.total %>" readonly
+                                class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label for="status">Trạng thái:</label>
+                            <select id="status" name="status" class="form-control">
+                                <option value="Waitting" <%=order.status==='Waitting' ? 'selected' : '' %>>Waitting
+                                </option>
+                                <option value="Deliver" <%=order.status==='Deliver' ? 'selected' : '' %>>Deliver
+                                </option>
+                                <option value="Done" <%=order.status==='Done' ? 'selected' : '' %>>Done</option>
+                                <option value="Cancle" <%=order.status==='Cancle' ? 'selected' : '' %>>Cancle</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Cập nhật</button>
+                    </form>
+                    <a href="/order/listorder" class="btn btn-secondary mt-3 mb-2 " >Quay lại danh sách đơn đặt</a>
 
-                            <form action="/user/edit/<%= user.id %>" method="POST">
-                                <div class="form-group">
-                                    <label for="username">Tên người dùng:</label>
-                                    <input type="text" id="email" name="email" value="<%= user.username %>"
-                                        class="form-control" readonly>
-                                </div>
-                                <div class="form-group">
-                                    <label for="email">Email:</label>
-                                    <input type="text" id="email" name="email" value="<%= user.email %>"
-                                        class="form-control" readonly>
-                                </div>
-                                <div class="form-group">
-                                    <label for="phone">Số điện thoại:</label>
-                                    <input type="text" id="phone" name="phone" value="<%= user.phone %>"
-                                        class="form-control" readonly>
-                                </div>
-                                <div class="form-group">
-                                <label for="lock">Khóa tài khoản:</label>
-    <select id="lock" name="lock" class="form-control">
-        <option value="true" <%= user.lock ? 'selected' : '' %>>Có</option>
-        <option value="false" <%= !user.lock ? 'selected' : '' %>>Không</option>
-    </select>
-                                </div>
-                                <button type="submit" class="btn btn-primary">Xác nhận</button>
-                            </form>
-
-                            <a href="/user/listuser" class="btn btn-secondary mt-3">Quay lại danh sách người dùng</a>
                 </div>
             </main>
         </div>
@@ -218,6 +233,18 @@
                 });
             });
     </script>
+
+    <script>
+        // Khởi tạo kết nối Socket.IO
+        var socket = io();
+
+        // Lắng nghe sự kiện 'reload'
+        socket.on('reload', function (data) {
+            // Tải lại trang
+            location.reload();
+        });
+    </script>
+
 </body>
 
 </html>

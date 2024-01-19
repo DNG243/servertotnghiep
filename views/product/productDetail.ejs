@@ -209,25 +209,33 @@
                                 </div>
                             </div>
 
-                            <h2 class="my-4">Màu sắc của đồ</h2>
-                            <div class="d-flex flex-wrap">
-                                <% product.color.forEach(function(color) { %>
-                                    <div class="p-3" style="
-                  background-color: <%= convertColor(color) %>;
-                  width: 30px;
-                  height: 30px;
-                "></div>
-                                    <% }); %>
-                            </div>
+     
 
-                            <h2 class="my-4">Kích cỡ</h2>
+                            <style>
+                                .color-box {
+                                    width: 20px;
+                                    height: 20px;
+                                    display: inline-block;
+                                    border: 1px solid #000;
+                                }
+                            </style>
+                            
+                            <h2 class="my-4">Màu sắc và số lượng theo kích cỡ</h2>
                             <ul class="list-group">
-                                <% product.size.forEach(function(size) { %>
+                                <% product.listColor.forEach(function(colorItem) { %>
                                     <li class="list-group-item">
-                                        <%= size %>
+                                        Màu: <span class="color-box" style="background-color: <%= convertColor(colorItem.color) %>;"></span>
+                                        <ul>
+                                            <% colorItem.quantity.forEach(function(quantity, index) { %>
+                                                <li>
+                                                    Kích cỡ: <%= product.size[index] %>, Số lượng: <%= quantity %>
+                                                </li>
+                                            <% }); %>
+                                        </ul>
                                     </li>
-                                    <% }); %>
+                                <% }); %>
                             </ul>
+                            
 
                             <h2 class="my-4">Giảm giá đã chọn</h2>
                             <ul class="list-group">

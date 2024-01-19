@@ -100,12 +100,26 @@
 
 <body class="bg-secondary">
     <nav class="navbar navbar-dark bg-dark">
-        <a class="navbar-brand" href="#">User List</a>
         <div class="logout-btn">
-            <button class="btn btn-outline-light my-2 my-sm-0" type="button">
+            <button class="btn btn-outline-light my-2 my-sm-0" type="button" onclick="handleLogout()">
                 <i class="fas fa-sign-out-alt"></i>
             </button>
         </div>
+        <script>
+            async function handleLogout() {
+                const response = await fetch('/admin/logout', {
+                    method: 'POST',
+                });
+
+                if (response.ok) {
+                    alert('Đăng xuất thành công!');
+                    window.location.href = "/"; // Chuyển hướng người dùng đến trang đăng nhập sau khi đăng xuất
+                } else {
+                    alert('Đăng xuất không thành công. Vui lòng thử lại.');
+                }
+            }
+        </script>
+
     </nav>
 
     <div class="container-fluid">
@@ -142,13 +156,9 @@
                                 nạp
                             </a>
                         </li>
+
                         <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="fas fa-star nav-link-icon"></i> Quản lý đánh giá
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">
+                            <a href="http://localhost:3000/thongke/thongkeall" class="nav-link">
                                 <i class="fas fa-chart-bar nav-link-icon"></i> Thống kê
                             </a>
                         </li>
@@ -160,42 +170,43 @@
             <!-- Content -->
             <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4 main-content">
                 <div class="rounded-top-header mb-3 p-3 bg-light text-dark mt-3">
-                    <h3>Chỉnh sửa người dùng</h3>
-                  </div>
+                    <h3>Duyệt thẻ nạp</h3>
+                </div>
                 <div class="p-3 bg-white rounded">
                     <% if (message) { %>
                         <div class="alert alert-success">
                             <%= message %>
                         </div>
                         <% } %>
+                    <form action="/card/updateCard/<%= cardId %>" method="POST" >
+                        <div class="mb-3">
+                            <label for="cardSerial" class="form-label">Số seri:</label>
+                            <input type="text" id="cardSerial" name="cardSerial" value="<%= card.cardSerial %>"
+                                class="form-control" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="cardPin" class="form-label">Mã thẻ:</label>
+                            <input type="text" id="cardPin" name="cardPin" value="<%= card.cardPin %>"
+                                class="form-control" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="cardValue" class="form-label">Mệnh giá:</label>
+                            <input type="text" id="cardValue" name="cardValue" value="<%= card.cardValue %>"
+                                class="form-control" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="status" class="form-label">Trạng thái:</label>
+                            <select id="status" name="status" class="form-control">
+                                <option class="form-control" value="success" <%=card.status==='success' ? 'selected'
+                                    : '' %>>Success</option>
+                                <option class="form-control" value="failed" <%=card.status==='failed' ? 'selected' : ''
+                                    %>>Failed</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Cập nhật</button>
+                    </form>
+                    <a href="/card/cardlist" class="btn btn-secondary mt-3 mb-2 ">Quay lại danh sách người dùng</a>
 
-                            <form action="/user/edit/<%= user.id %>" method="POST">
-                                <div class="form-group">
-                                    <label for="username">Tên người dùng:</label>
-                                    <input type="text" id="email" name="email" value="<%= user.username %>"
-                                        class="form-control" readonly>
-                                </div>
-                                <div class="form-group">
-                                    <label for="email">Email:</label>
-                                    <input type="text" id="email" name="email" value="<%= user.email %>"
-                                        class="form-control" readonly>
-                                </div>
-                                <div class="form-group">
-                                    <label for="phone">Số điện thoại:</label>
-                                    <input type="text" id="phone" name="phone" value="<%= user.phone %>"
-                                        class="form-control" readonly>
-                                </div>
-                                <div class="form-group">
-                                <label for="lock">Khóa tài khoản:</label>
-    <select id="lock" name="lock" class="form-control">
-        <option value="true" <%= user.lock ? 'selected' : '' %>>Có</option>
-        <option value="false" <%= !user.lock ? 'selected' : '' %>>Không</option>
-    </select>
-                                </div>
-                                <button type="submit" class="btn btn-primary">Xác nhận</button>
-                            </form>
-
-                            <a href="/user/listuser" class="btn btn-secondary mt-3">Quay lại danh sách người dùng</a>
                 </div>
             </main>
         </div>

@@ -178,30 +178,47 @@
         <div class="p-3 bg-white rounded">
             <h1 class="text-center my-4">Thông tin đơn hàng</h1>
             <div class="card">
-                <div class="card-body">
-                    <p class="card-text"><strong>Địa chỉ:</strong> <%= order.address %></p>
-                    <%
-                    function convertColor(color) {
-                      // Loại bỏ phần alpha và chuyển đổi thành hệ thập lục phân
-                      return '#' + ('000000' + (color & 0xFFFFFF).toString(16)).slice(-6);
-                    }
-                    %>
-                    <p class="card-text"><strong>Màu sắc:</strong> 
-                        <div style="background-color: <%= convertColor(order.color) %>; width: 30px; height: 30px;"></div>
-                    </p>
-                    <p class="card-text"><strong>Ngày:</strong> <%= order.date %></p>
-                    <p class="card-text""><strong>Hình ảnh sản phẩm:</strong></p>
-                    <img class="img-fluid mb-2" style="height: 400px;width: 400px;" src="<%= order.imgProduct %>" alt="Product image">
-                    <p class="card-text"><strong>Tên sản phẩm:</strong> <%= order.nameProduct %></p>
-                    <p class="card-text"><strong>Ghi chú:</strong> <%= order.notes %></p>
-                    <p class="card-text"><strong>Số điện thoại:</strong> <%= order.numberPhone %></p>
-                    <p class="card-text"><strong>Phương thức thanh toán:</strong> <%= order.paid ? 'Thanh toán bằng ví' : ' Thanh toán khi nhận hàng' %></p>
-                    <p class="card-text"><strong>Số lượng mua:</strong> <%= order.quantity %></p>
-                    <p class="card-text"><strong>Trạng thái đơn hàng:</strong> <%= order.status %></p>
-                    <p class="card-text"><strong>Tổng tiền:</strong> <%= order.total %></p>
+              <div class="card-body">
+                <p class="card-text"><strong>Tên người mua:</strong> <%= order.customerName %></p>
+                  <p class="card-text"><strong>Địa chỉ:</strong> <%= order.address %></p>
+                  <p class="card-text"><strong>Số điện thoại:</strong> <%= order.numberPhone %></p>
+                  <p class="card-text"><strong>Phương thức thanh toán:</strong> <%= order.paid ? 'Thanh toán bằng ví' : ' Thanh toán khi nhận hàng' %></p>
+                  <p class="card-text"><strong>Tổng tiền:</strong> <%= order.total %></p>
+                  
+              </div>
+          </div>
+          
+        </div>
+        <div class="p-3 bg-white rounded">
+          <h1 class="text-center my-4">Các sản phẩm đã đặt</h1>
+          <div class="card">
+            <div class="card-body">
+                  <% order.listProduct.forEach(function(product, index) { %>
+                      <%
+                      function convertColor(color) {
+                          // Loại bỏ phần alpha và chuyển đổi thành hệ thập lục phân
+                          return '#' + ('000000' + (color & 0xFFFFFF).toString(16)).slice(-6);
+                      }
+                      %>
+                      <p class="card-text"><strong>Màu sắc:</strong> 
+                          <div style="background-color: <%= convertColor(product.colorPr) %>; width: 30px; height: 30px;"></div>
+                      </p>
+                      
+                      <p class="card-text""><strong>Hình ảnh sản phẩm:</strong></p>
+                      <img class="img-fluid mb-2" style="height: 400px;width: 400px;" src="<%= product.imgPr %>" alt="Product image">
+                      <p class="card-text"><strong>Tên sản phẩm:</strong> <%= product.namePr %></p>
+                      <p class="card-text"><strong>Ghi chú:</strong> <%= product.note %></p>
+                      <p class="card-text"><strong>Số lượng mua:</strong> <%= product.quantityPr %></p>
+                      
+          
+                      <% if (index < order.listProduct.length - 1) { %>
+                          <hr>
+                      <% } %>
+                  <% }); %>
                 </div>
-            </div>
-        </div></main>
+              </div>
+        </div>
+      </main>
       </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>

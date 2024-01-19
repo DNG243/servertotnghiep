@@ -7,167 +7,152 @@ firebase.initializeApp(firebaseConfig);
 
 const db = getDatabase();
 
-exports.listAllData = async (req, res, next) => {
-  // Tham chiếu đến bảng 'user'
-  const userRef = ref(db, "user");
-  onValue(userRef, (snapshot) => {
-    const userObject = snapshot.val();
-    // Chuyển đổi đối tượng data thành mảng
-    const userArray = Object.keys(userObject).map((key) => {
-      return userObject[key];
-    });
-    // Tính tổng số người dùng đã tạo tài khoản
-    const totalUsers = userArray.length;
-    console.log(`Tổng số người dùng đã tạo tài khoản: ${totalUsers}`);
+exports.filterData = async (req, res, next) => {
+  const db = getDatabase();
 
-    // Tham chiếu đến bảng 'products'
-    const productRef = ref(db, "products");
-    onValue(productRef, (snapshot) => {
-      const productObject = snapshot.val();
-      // Chuyển đổi đối tượng data thành mảng
-      const productArray = Object.keys(productObject).map((key) => {
-        return productObject[key];
-      });
-      // Tính tổng số sản phẩm đã được rao bán và đã được bán
-      let totalProductsForSale = 0;
-      let totalProductsSold = 0;
-      productArray.forEach((product) => {
-        totalProductsForSale += product.quantity;
-        totalProductsSold += product.sold;
-      });
-      console.log(`Tổng số sản phẩm đã được rao bán: ${totalProductsForSale}`);
-      console.log(`Tổng số sản phẩm đã được bán: ${totalProductsSold}`);
+  let currentDate = new Date();
 
-      // Tham chiếu đến bảng 'list_order'
-      const orderRef = ref(db, "list_order");
-      onValue(orderRef, (snapshot) => {
-        const orderObject = snapshot.val();
-        // Chuyển đổi đối tượng data thành mảng
-        const orderArray = Object.keys(orderObject).map((key) => {
-          return orderObject[key];
-        });
+  let startDate = req.body["start-date"]
+    ? new Date(req.body["start-date"])
+    : new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+  let endDate = req.body["end-date"]
+    ? new Date(req.body["end-date"])
+    : new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
 
-        // Tạo đối tượng để theo dõi số lượng đơn hàng theo tháng và năm
-        let orderStats = {};
+  let stats = {
+    cards: {},
+    list_order: {},
+    products: {},
+  };
 
-        orderArray.forEach((order) => {
-          // Lấy năm, tháng, ngày và giờ từ ngày đặt hàng
-          let dateTimeParts = order.date.split(" ");
-          let dateParts = dateTimeParts[0].split("/");
-          let time = dateTimeParts[1];
-          let day = dateParts[2];
-          let month = dateParts[1];
-          let year = dateParts[0];
-        
-          // Khởi tạo năm nếu chưa có
-          if (!orderStats[year]) {
-            orderStats[year] = {};
-          }
-        
-          // Khởi tạo tháng nếu chưa có
-          if (!orderStats[year][month]) {
-            orderStats[year][month] = {
-              totalOrders: 0,
-              successfulOrders: 0,
-              waitingOrders: 0,
-              totalAmount: 0,
-            };
-          }
-        
-          // Tăng số lượng đơn hàng
-          orderStats[year][month].totalOrders++;
-        
-          // Kiểm tra trạng thái đơn hàng
-          if (order.status === "done" && order.paid) {
-            orderStats[year][month].successfulOrders++;
-            // Tính tổng số tiền cho các đơn hàng đã thanh toán thành công
-            orderStats[year][month].totalAmount += order.total;
-          } else if (order.status === "waiting") {
-            orderStats[year][month].waitingOrders++;
-          }
-        });
-        
+  let totalSales = 0; // Biến để tính tổng tiền bán được
 
-        console.log(orderStats); // In ra thống kê đơn hàng theo tháng và năm
+  let cardsPromise = new Promise((resolve, reject) => {
+    const cardsRef = ref(db, "cards/");
+    onValue(
+      cardsRef,
+      (snapshot) => {
+        const cardsData = snapshot.val();
+        for (let key in cardsData) {
+          let record = cardsData[key];
+          let dateParts = record.time.split(" ")[0].split("/");
+          let formattedDate = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
+          let recordDate = new Date(formattedDate);
 
-        // Tham chiếu đến bảng 'cards'
-        const cardsRef = ref(db, "cards");
-        onValue(cardsRef, (snapshot) => {
-          const cardsObject = snapshot.val();
-          // Chuyển đổi đối tượng data thành mảng
-          const cardsArray = Object.keys(cardsObject).map((key) => {
-            return cardsObject[key];
-          });
-          // Tính tổng số thẻ
-          const totalCards = cardsArray.length;
-          console.log(`Tổng số thẻ: ${totalCards}`);
-
-          // Tạo đối tượng để theo dõi số lượng thẻ theo tháng và năm
-          let cardStats = {};
-
-          cardsArray.forEach((card) => {
-            // Lấy năm và tháng từ thời gian nạp thẻ
-            let dateParts = card.time.split("/");
-            let timeParts = dateParts[2].split(" ");
-            let year = timeParts[0];
-            let month = dateParts[1];
-            let day = dateParts[0];
-
-            let date = new Date(year, month - 1, day);
-            year = date.getFullYear();
-            month = date.getMonth() + 1; // getMonth() trả về từ 0 (tháng 1) đến 11 (tháng 12)
-
-            // Khởi tạo năm nếu chưa có
-            if (!cardStats[year]) {
-              cardStats[year] = {};
-            }
-
-            // Khởi tạo tháng nếu chưa có
-            if (!cardStats[year][month]) {
-              cardStats[year][month] = {
-                totalCards: 0,
-                successfulCards: 0,
-                failedCards: 0,
-                totalAmount: 0,
+          if (recordDate >= startDate && recordDate <= endDate) {
+            if (!stats.cards[formattedDate]) {
+              stats.cards[formattedDate] = {
+                success: { count: 0, totalValue: 0 },
+                failed: { count: 0 },
               };
             }
-
-            // Tăng số lượng thẻ
-            cardStats[year][month].totalCards++;
-
-            // Kiểm tra trạng thái thẻ
-            if (card.status === "success") {
-              cardStats[year][month].successfulCards++;
-              // Tính tổng số tiền cho các thẻ đã nạp thành công
-              cardStats[year][month].totalAmount += parseInt(card.cardValue);
-            } else if (card.status === "failed") {
-              cardStats[year][month].failedCards++;
+            if (record.status === "success") {
+              stats.cards[formattedDate].success.count++;
+              stats.cards[formattedDate].success.totalValue += parseInt(
+                record.cardValue
+              );
+            } else if (record.status === "failed") {
+              stats.cards[formattedDate].failed.count++;
             }
-          });
+          }
+        }
 
-          console.log(cardStats); // In ra thống kê thẻ theo tháng và năm
+        stats.cards = Object.keys(stats.cards)
+          .sort()
+          .reduce((obj, key) => {
+            obj[key] = stats.cards[key];
+            return obj;
+          }, {});
 
-          // Lấy năm và tháng hiện tại
-          let currentDate = new Date();
-          let currentYear = currentDate.getFullYear();
-          let currentMonth = currentDate.getMonth() + 1; // getMonth() trả về từ 0 (tháng 1) đến 11 (tháng 12)
-          // Gửi dữ liệu trở lại cho client qua trang EJS
-          res.render("data/dataList", {
-            userData: userArray,
-            productData: productArray,
-            orderData: orderArray,
-            totalUsers: totalUsers,
-            totalProductsForSale: totalProductsForSale,
-            totalProductsSold: totalProductsSold,
-            orderStats: orderStats,
-            cardsData: cardsArray,
-            totalCards: totalCards,
-            cardStats: cardStats,
-            currentYear: currentYear,
-            currentMonth: currentMonth,
-          });
-        });
-      });
+        console.log("Cards Statistics:", stats.cards);
+        resolve();
+      },
+      {
+        onlyOnce: true,
+      }
+    );
+  });
+
+  let listOrderPromise = new Promise((resolve, reject) => {
+    const listOrderRef = ref(db, "list_order/");
+    onValue(
+      listOrderRef,
+      (snapshot) => {
+        const listOrderData = snapshot.val();
+        for (let key in listOrderData) {
+          let record = listOrderData[key];
+          let date = record.date.split(" ")[0];
+          let recordDate = new Date(date);
+
+          if (recordDate >= startDate && recordDate <= endDate) {
+            if (!stats.list_order[date]) {
+              stats.list_order[date] = {
+                success: { count: 0, totalValue: 0 },
+                failed: { count: 0 },
+              };
+            }
+            if (record.status === "Done") {
+              stats.list_order[date].success.count++;
+              stats.list_order[date].success.totalValue += parseInt(
+                record.total
+              );
+
+              // Thêm phần thống kê sản phẩm
+
+              for (let product of record.listProduct) {
+                // Kiểm tra nếu đơn hàng đã hoàn thành
+                if (record.status === "Done") {
+                  if (!stats.products[product.idProduct]) {
+                    stats.products[product.idProduct] = {
+                      name: product.namePr,
+                      image: product.imgPr,
+                      quantity: 0,
+                      totalValue: 0,
+                    };
+                  }
+                  stats.products[product.idProduct].quantity +=
+                    product.quantityPr;
+                  let sales =
+                    stats.products[product.idProduct].quantity * product.price;
+                  stats.products[product.idProduct].totalValue = sales;
+                }
+              }
+
+              // Tính tổng tiền bán được từ tất cả các sản phẩm
+            } else if (record.status === "Cancle") {
+              stats.list_order[date].failed.count++;
+            }
+          }
+        }
+        for (let id in stats.products) {
+          totalSales += stats.products[id].totalValue;
+        }
+
+        console.log(`Tổng tiền bán được từ tất cả các sản phẩm: ${totalSales}`);
+        stats.list_order = Object.keys(stats.list_order)
+          .sort()
+          .reduce((obj, key) => {
+            obj[key] = stats.list_order[key];
+            return obj;
+          }, {});
+        console.log("List Order Statistics:", stats.list_order);
+        resolve();
+      },
+      {
+        onlyOnce: true,
+      }
+    );
+  });
+
+  Promise.all([cardsPromise, listOrderPromise]).then(() => {
+    stats.totalSales = totalSales; // Thêm tổng tiền bán được vào stats
+
+    console.log("Products Statistics:", stats.products);
+    console.log(stats);
+    res.render("data/dataList", {
+      stats: stats,
+      startDate: startDate.toISOString().split("T")[0],
+      endDate: endDate.toISOString().split("T")[0],
     });
   });
 };

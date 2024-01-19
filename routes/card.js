@@ -15,5 +15,7 @@ function requireLogin(req, res, next) {
 router.get("/cardlist", requireLogin, carddt.listCards);
 router.get("/detailcard/:id", requireLogin, carddt.getCardDetail);
 router.get("/search", requireLogin, carddt.searchCards);
+router.get("/editcard/:id", requireLogin, carddt.getEditCard);
+router.post("/updateCard/:id", requireLogin, carddt.updateCard);
 
 module.exports = router;
